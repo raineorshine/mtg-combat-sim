@@ -1,0 +1,46 @@
+{
+  "name": "mtg-combat-sim",
+  "version": "0.0.0",
+  "description": "",
+  "license": "ISC",
+  "repository": "https://github.com/raineorshine/mtg-combat-sim",
+  "author": {
+    "name": "Raine Revere",
+    "email": "raineorshine@gmail.com",
+    "url": "http://raine.tech"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha --compilers babel-register"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  },
+  "dependencies": {
+    "babel-preset-es2015": "*",
+    "babel-register": "*",
+    "browserify": "*",
+    "event-stream": "*",
+    "gulp": "*",
+    "gulp-autoprefixer": "*",
+    "gulp-babel": "*",
+    "gulp-cached": "*",
+    "gulp-concat": "*",
+    "gulp-livereload": "*",
+    "gulp-minify-css": "*",
+    "gulp-notify": "*",
+    "gulp-plumber": "*",
+    "gulp-progeny": "*",
+    "gulp-rename": "*",
+    "gulp-sass": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-stylus": "*",
+    "gulp-util": "*",
+    "nib": "*",
+    "vinyl-buffer": "*",
+    "vinyl-source-stream": "*"
+  }
+}
