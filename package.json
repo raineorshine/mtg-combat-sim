@@ -21,12 +21,13 @@
   },
   "dependencies": {
     "babel-preset-es2015": "*",
+    "babel-preset-react": "^6.5.0",
     "babel-register": "*",
+    "babelify": "^7.3.0",
     "browserify": "*",
     "event-stream": "*",
     "gulp": "*",
     "gulp-autoprefixer": "*",
-    "gulp-babel": "*",
     "gulp-cached": "*",
     "gulp-concat": "*",
     "gulp-livereload": "*",
@@ -40,6 +41,8 @@
     "gulp-stylus": "*",
     "gulp-util": "*",
     "nib": "*",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
     "vinyl-buffer": "*",
     "vinyl-source-stream": "*"
   }

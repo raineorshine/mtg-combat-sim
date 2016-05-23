@@ -5,7 +5,7 @@ const notify        = require('gulp-notify')
 const sourcemaps    = require('gulp-sourcemaps')
 const source        = require('vinyl-source-stream')
 const buffer        = require('vinyl-buffer')
-const babel         = require("gulp-babel")
+const babel         = require('babelify')
 const es            = require('event-stream')
 const autoprefixer  = require('gulp-autoprefixer')
 const cache         = require('gulp-cached')
@@ -17,7 +17,7 @@ const rename        = require('gulp-rename')
 const sass          = require('gulp-sass')
 const stylus        = require('gulp-stylus')
 const nib           = require('nib')
-const notifyOnError = notify.onError("<%= error.message %>")
+const notifyOnError = notify.onError('<%= error.message %>')
 
 const config = {
   srcCss: 'src/style/**/*.css',
@@ -25,8 +25,8 @@ const config = {
   srcSass: 'src/style/**/*.s*ss',
   destCss: 'public/style',
   cssConcatTarget: 'main.css',
-  srcScripts: 'src/script/**/*.js',
-  srcAppScript: 'src/index.js',
+  srcScripts: 'src/**/*.js',
+  srcAppScript: './src/index.js',
   destScripts: 'public/script',
   destBundle: 'bundle.js'
 }
@@ -44,7 +44,7 @@ gulp.task('style', () => {
     .pipe(sass({ indentedSyntax: true }))
 
   return es.merge(css, sassStream, stylusStream)
-    .pipe(pipe(cache('style')))
+    .pipe(cache('style'))
     .pipe(progeny())
     .pipe(concat(config.cssConcatTarget))
     .pipe(autoprefixer('last 2 versions'))
@@ -56,13 +56,14 @@ gulp.task('style', () => {
 })
 
 gulp.task('script', () => {
-  return browserify(config.srcAppScript).bundle()
+  return browserify(config.srcAppScript, { debug: true })
+    .transform(babel, {
+      presets: ['es2015', 'react']
+    })
+    .bundle()
     .pipe(source(config.destBundle))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(babel({
-      presets: ['es2015']
-    }))
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(config.destScripts))
     .pipe(livereload({ auto: false }))
