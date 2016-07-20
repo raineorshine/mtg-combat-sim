@@ -1,0 +1,51 @@
+body {
+  margin: 20px 0;
+  font-family: 'Helvetica Neue';
+  font-weight: 100;
+}
+
+.hand-label {
+  font-size: 40px;
+  text-transform: uppercase;
+  margin: 40px 0 10px;
+}
+
+hr {
+  margin: 40px 0;
+  border-width: 1px 0 0 0;
+}
+
+.board {
+  text-align: center;
+}
+
+.board1 {
+  transform: rotate(180deg);
+}
+
+.board2 {
+}
+
+.card {
+  padding: 0 10px;
+}
+
+.life-label {
+  font-size: 26px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.life-value {
+  font-size: 84px;
+  min-width: 1.1em;
+}
+
+.life {
+  position: absolute;
+  padding: 0 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-left: 20px;
+  z-index: 1;
+  text-align: center;
+}
