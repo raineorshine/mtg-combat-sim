@@ -4,6 +4,25 @@ body {
   font-weight: 100;
 }
 
+.loading {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  top: 40vh;
+  font-size: 84px;
+}
+
+.loading-ellipsis {
+  font-weight: 500;
+  font-size: 50px;
+  font-family: serif;
+  letter-spacing: 5px;
+  margin-left: 5px;
+  display: inline-block; /* so that we can give it a width */
+  width: 1em; /* fix width to loading element's center position doesn't change */
+  text-align: left;
+}
+
 .hand-label {
   font-size: 40px;
   text-transform: uppercase;
