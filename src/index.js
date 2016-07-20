@@ -17,16 +17,24 @@ const LIFE_MIN = 1
 const LIFE_MAX = 20
 const MAX_ALPHA_BUFFER = 5
 
+const BANNED = [
+  'Emrakul, the Promised End'
+]
+
 let state = {
   loading: { count: 0 }
 }
 
 const toNumber = x => +x
-const sum = (x,y) => x + y
-const diff = (x,y) => x - y
+const sum = (x, y) => x + y
+const diff = (x, y) => x - y
+const and = (f, g) => x => f(x) && g(x)
+const or = (f, g) => x => f(x) || g(x)
 
-/** Returns true if the given card is the back of a double-faced or meld card. */
-const isBack = card => !card.names || card.name === card.names[0]
+/** Returns true if the given card is not flipped or melded. */
+const isFront = card => !card.names || card.name === card.names[0]
+
+const allowed = card => BANNED.indexOf(card.name) === -1
 
 const generateBoard = allCards => {
 
@@ -168,7 +176,7 @@ const clock = setInterval(() => {
 }, 300)
 
 mtg.card.where({ set: 'EMN', pageSize: 500 }).then(allCards => {
-  const cards = allCards.filter(isBack)
+  const cards = allCards.filter(and(isFront, allowed))
   clearInterval(clock)
   state.loading = null
   state.board1 = generateBoard(cards)
