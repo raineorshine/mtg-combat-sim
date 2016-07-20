@@ -7,23 +7,27 @@ import { div, img, hr } from 'r-dom'
 import { filter, random, sampleSize } from 'lodash'
 import { merge, propEq } from 'ramda'
 
-const ALL_COLORS = 'WUBRG'
+const ALL_COLORS = ['White', 'Blue', 'Black', 'Red', 'Green']
 const NUM_COLORS = 2
-const HAND_SIZE_MIN = 1
-const HAND_SIZE_MAX = 5
-const BOARD_SIZE_MIN = 1
-const BOARD_SIZE_MAX = 5
+const HAND_SIZE_MIN = 2
+const HAND_SIZE_MAX = 4
+const BOARD_SIZE_MIN = 2
+const BOARD_SIZE_MAX = 4
 const LIFE_MIN = 1
 const LIFE_MAX = 20
 
 const log = console.log.bind(console)
 
-const url = multiverseid => 'http://gatherer.wizards.com/Handlers/Image.ashx?type=card&multiverseid=' + multiverseid
-
-const generateBoard = (cards) => {
+const generateBoard = allCards => {
 
   // choose colors
   const colors = sampleSize(ALL_COLORS, NUM_COLORS)
+  const cards = filter(allCards, card => {
+    return !card.colors ||
+      !card.colors.length ||
+      // every color of the card is in the player's colors
+      card.colors.every(color => colors.indexOf(color) >= 0)
+  })
 
   const hand = sampleSize(cards, random(HAND_SIZE_MIN, HAND_SIZE_MAX))
 
@@ -89,11 +93,11 @@ const Board = ({ hand, creatures, lands }) => {
   ])
 }
 
-const Card = ({ name, multiverseid }) => {
+const Card = ({ name, imageUrl }) => {
   return img({
     className: 'card',
     alt: name,
-    src: url(multiverseid)
+    src: imageUrl
   })
 }
 
