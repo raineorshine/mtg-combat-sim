@@ -25,6 +25,9 @@ const toNumber = x => +x
 const sum = (x,y) => x + y
 const diff = (x,y) => x - y
 
+/** Returns true if the given card is the back of a double-faced or meld card. */
+const isBack = card => !card.names || card.name === card.names[0]
+
 const generateBoard = allCards => {
 
   // choose colors
@@ -164,7 +167,8 @@ const clock = setInterval(() => {
   render()
 }, 300)
 
-mtg.card.where({ set: 'EMN', pageSize: 500 }).then(cards => {
+mtg.card.where({ set: 'EMN', pageSize: 500 }).then(allCards => {
+  const cards = allCards.filter(isBack)
   clearInterval(clock)
   state.loading = null
   state.board1 = generateBoard(cards)
