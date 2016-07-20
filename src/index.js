@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import * as mtg from 'mtgsdk'
 const r = require('r-dom')
-import { div, img, hr, span } from 'r-dom'
+import { a, div, footer, img, hr, span } from 'r-dom'
 import { filter, random, repeat, sampleSize } from 'lodash'
 import { merge, pipe, prop, propEq, sort } from 'ramda'
 
@@ -16,6 +16,7 @@ const BOARD_SIZE_MAX = 4
 const LIFE_MIN = 1
 const LIFE_MAX = 20
 const MAX_ALPHA_BUFFER = 5
+const GITHUB_SOURCE = 'https://github.com/raineorshine/mtg-combat-sim'
 
 const BANNED = [
   'Emrakul, the Promised End'
@@ -115,20 +116,26 @@ const Game = ({ loading, board1, board2 }) => {
     loading ? div({ className: 'loading' }, [
       span({}, 'Loading'),
       span({ className: 'loading-ellipsis' }, repeat('.', loading.count))
-    ]) : null,
-    board1 ? div({ className: 'player' }, [
-      r(Life, board1),
-      div({ className: 'board1' }, [r(Board, {
-        // omit opponent's hand
-        creatures: board1.creatures,
-        lands: board1.lands
-      })])
-    ]) : null,
-    board2 ? div({ className: 'player' }, [
-      hr(),
-      r(Life, board2),
-      div({ className: 'board2' }, [r(Board, board2)])
-    ]) : null
+    ])
+    : div({}, [
+      board1 ? div({ className: 'player' }, [
+        r(Life, board1),
+        div({ className: 'board1' }, [r(Board, {
+          // omit opponent's hand
+          creatures: board1.creatures,
+          lands: board1.lands
+        })])
+      ]) : null,
+      board2 ? div({ className: 'player' }, [
+        hr(),
+        r(Life, board2),
+        div({ className: 'board2' }, [r(Board, board2)])
+      ]) : null,
+      footer({}, [
+        'made by raine. ',
+        a({ href: GITHUB_SOURCE, target: '_blank' }, 'github')
+      ])
+    ]),
   ])
 }
 

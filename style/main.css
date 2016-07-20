@@ -4,6 +4,11 @@ body {
   font-weight: 100;
 }
 
+footer {
+  margin: 100px 20px 50px 20px;
+  text-align: center;
+}
+
 .loading {
   position: absolute;
   text-align: center;

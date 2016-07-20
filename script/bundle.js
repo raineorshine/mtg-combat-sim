@@ -122825,6 +122825,7 @@ var BOARD_SIZE_MAX = 4;
 var LIFE_MIN = 1;
 var LIFE_MAX = 20;
 var MAX_ALPHA_BUFFER = 5;
+var GITHUB_SOURCE = 'https://github.com/raineorshine/mtg-combat-sim';
 
 var BANNED = ['Emrakul, the Promised End'];
 
@@ -122935,11 +122936,11 @@ var Game = function Game(_ref) {
   var board1 = _ref.board1;
   var board2 = _ref.board2;
 
-  return (0, _rDom.div)({ className: 'game' }, [loading ? (0, _rDom.div)({ className: 'loading' }, [(0, _rDom.span)({}, 'Loading'), (0, _rDom.span)({ className: 'loading-ellipsis' }, (0, _lodash.repeat)('.', loading.count))]) : null, board1 ? (0, _rDom.div)({ className: 'player' }, [r(Life, board1), (0, _rDom.div)({ className: 'board1' }, [r(Board, {
+  return (0, _rDom.div)({ className: 'game' }, [loading ? (0, _rDom.div)({ className: 'loading' }, [(0, _rDom.span)({}, 'Loading'), (0, _rDom.span)({ className: 'loading-ellipsis' }, (0, _lodash.repeat)('.', loading.count))]) : (0, _rDom.div)({}, [board1 ? (0, _rDom.div)({ className: 'player' }, [r(Life, board1), (0, _rDom.div)({ className: 'board1' }, [r(Board, {
     // omit opponent's hand
     creatures: board1.creatures,
     lands: board1.lands
-  })])]) : null, board2 ? (0, _rDom.div)({ className: 'player' }, [(0, _rDom.hr)(), r(Life, board2), (0, _rDom.div)({ className: 'board2' }, [r(Board, board2)])]) : null]);
+  })])]) : null, board2 ? (0, _rDom.div)({ className: 'player' }, [(0, _rDom.hr)(), r(Life, board2), (0, _rDom.div)({ className: 'board2' }, [r(Board, board2)])]) : null, (0, _rDom.footer)({}, ['made by raine. ', (0, _rDom.a)({ href: GITHUB_SOURCE, target: '_blank' }, 'github')])])]);
 };
 
 var Board = function Board(_ref2) {
