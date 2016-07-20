@@ -5,7 +5,7 @@ import * as mtg from 'mtgsdk'
 const r = require('r-dom')
 import { div, img, hr, span } from 'r-dom'
 import { filter, random, repeat, sampleSize } from 'lodash'
-import { merge, propEq } from 'ramda'
+import { merge, pipe, prop, propEq, sort } from 'ramda'
 
 const ALL_COLORS = ['White', 'Blue', 'Black', 'Red', 'Green']
 const NUM_COLORS = 2
@@ -15,12 +15,15 @@ const BOARD_SIZE_MIN = 2
 const BOARD_SIZE_MAX = 4
 const LIFE_MIN = 1
 const LIFE_MAX = 20
-
-const log = console.log.bind(console)
+const MAX_ALPHA_BUFFER = 5
 
 let state = {
   loading: { count: 0 }
 }
+
+const toNumber = x => +x
+const sum = (x,y) => x + y
+const diff = (x,y) => x - y
 
 const generateBoard = allCards => {
 
@@ -57,6 +60,39 @@ const render = () => {
     r(Game, { loading, board1, board2 }),
     document.getElementById('app')
   )
+}
+
+// calculate the minimum damage that would get through for each player in
+// an alpha strike, and set the other player's life above that value to
+// eliminate trivial combat scenarios
+const getAlpha = (creatures1, creatures2) => {
+  const creatureDiff = creatures1.length - creatures2.length
+
+  if(creatureDiff === 0) return 0
+
+  // get storted creature powers
+  const power1 = sort(diff, creatures1.map(pipe(prop('power'), toNumber)))
+  const power2 = sort(diff, creatures2.map(pipe(prop('power'), toNumber)))
+
+  return creatureDiff > 0
+    ? power1.slice(0, creatureDiff).reduce(sum, 0)
+    : -power2.slice(0, -creatureDiff).reduce(sum, 0)
+}
+
+// calculate the minimum damage that would get through for each player in
+// an alpha strike, and set the other player's life above that value to
+// eliminate trivial combat scenarios
+const removeTrivialAttacks = () => {
+
+  const alphaDiff = getAlpha(state.board1.creatures, state.board2.creatures)
+
+  if(alphaDiff >= state.board2.life) {
+    return state.board2.life = alphaDiff + random(0, MAX_ALPHA_BUFFER)
+  }
+  else if(-alphaDiff >= state.board1.life) {
+    state.board1.life = -alphaDiff + random(0, MAX_ALPHA_BUFFER)
+  }
+
 }
 
 /**************************************
@@ -133,5 +169,6 @@ mtg.card.where({ set: 'EMN', pageSize: 500 }).then(cards => {
   state.loading = null
   state.board1 = generateBoard(cards)
   state.board2 = generateBoard(cards)
+  removeTrivialAttacks()
   render()
 })
