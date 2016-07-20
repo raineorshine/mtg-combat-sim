@@ -23,11 +23,11 @@ const config = {
   srcCss: 'src/style/**/*.css',
   srcStylus: 'src/style/**/*.styl',
   srcSass: 'src/style/**/*.s*ss',
-  destCss: 'public/style',
+  destCss: 'style',
   cssConcatTarget: 'main.css',
   srcScripts: 'src/**/*.js',
   srcAppScript: './src/index.js',
-  destScripts: 'public/script',
+  destScripts: 'script',
   destBundle: 'bundle.js'
 }
 
