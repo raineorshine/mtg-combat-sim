@@ -2,6 +2,8 @@
 
 A web app that generates random combat scenarios for Magic: The Gathering.
 
+http://raineorshine.github.io/mtg-combat-sim
+
 ![Screenshot](https://raw.githubusercontent.com/raineorshine/mtg-combat-sim/master/screenshot.png)
 
 # Help Wanted
