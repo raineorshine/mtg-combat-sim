@@ -122827,7 +122827,7 @@ var LIFE_MAX = 20;
 var MAX_ALPHA_BUFFER = 5;
 var GITHUB_SOURCE = 'https://github.com/raineorshine/mtg-combat-sim';
 
-var BANNED = ['Emrakul, the Promised End'];
+var BANNED = ['Coax from the Blind Eternities', 'Emrakul, the Promised End', 'Lupine Prototype'];
 
 var state = {
   loading: { count: 0 }
@@ -122865,13 +122865,14 @@ var or = function or(f, g) {
 var isFront = function isFront(card) {
   return !card.names || card.name === card.names[0];
 };
-
 var allowed = function allowed(card) {
   return BANNED.indexOf(card.name) === -1;
 };
-
 var url = function url(multiverseid) {
   return 'http://gatherer.wizards.com/Handlers/Image.ashx?type=card&multiverseid=' + multiverseid;
+};
+var compareLands = function compareLands(a, b) {
+  return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
 };
 
 var generateBoard = function generateBoard(allCards) {
@@ -122899,9 +122900,9 @@ var generateBoard = function generateBoard(allCards) {
   var maxCmc = creatures.map((0, _ramda.prop)('cmc')).reduce((0, _ramda.binary)(_ramda.max));
   var numLands = Math.max(maxCmc, (0, _lodash.random)(3, 6));
 
-  var lands = [].concat([allLands[colors[0]], allLands[colors[1]]], (0, _ramda.range)(0, numLands - 2).map(function () {
+  var lands = (0, _ramda.sort)(compareLands, [].concat([allLands[colors[0]], allLands[colors[1]]], (0, _ramda.range)(0, numLands - 2).map(function () {
     return allLands[(0, _lodash.sample)(colors)];
-  }));
+  })));
 
   return { hand: hand, creatures: creatures, lands: lands, life: (0, _lodash.random)(LIFE_MIN, LIFE_MAX) };
 };

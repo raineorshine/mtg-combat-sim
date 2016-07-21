@@ -19,7 +19,9 @@ const MAX_ALPHA_BUFFER = 5
 const GITHUB_SOURCE = 'https://github.com/raineorshine/mtg-combat-sim'
 
 const BANNED = [
-  'Emrakul, the Promised End'
+  'Coax from the Blind Eternities',
+  'Emrakul, the Promised End',
+  'Lupine Prototype'
 ]
 
 let state = {
@@ -42,10 +44,9 @@ const or = (f, g) => x => f(x) || g(x)
 
 /** Returns true if the given card is not flipped or melded. */
 const isFront = card => !card.names || card.name === card.names[0]
-
 const allowed = card => BANNED.indexOf(card.name) === -1
-
 const url = multiverseid => 'http://gatherer.wizards.com/Handlers/Image.ashx?type=card&multiverseid=' + multiverseid
+const compareLands = (a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0
 
 const generateBoard = allCards => {
 
@@ -74,10 +75,10 @@ const generateBoard = allCards => {
   const maxCmc = creatures.map(prop('cmc')).reduce(binary(max))
   const numLands = Math.max(maxCmc, random(3, 6))
 
-  const lands = [].concat(
+  const lands = sort(compareLands, [].concat(
     [allLands[colors[0]], allLands[colors[1]]],
     range(0, numLands - 2).map(() => allLands[sample(colors)])
-  )
+  ))
 
   return { hand, creatures, lands, life: random(LIFE_MIN, LIFE_MAX) }
 }
