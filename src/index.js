@@ -83,11 +83,8 @@ const generateBoard = allCards => {
 }
 
 const render = () => {
-
-  const { loading, board1, board2 } = state
-
   ReactDOM.render(
-    r(Game, { loading, board1, board2 }),
+    r(Game, state),
     document.getElementById('app')
   )
 }
@@ -145,13 +142,17 @@ const equalizeLands = state => {
  * Components
  **************************************/
 
-const Game = ({ loading, board1, board2 }) => {
+const Game = ({ error, loading, board1, board2 }) => {
   return div({ className: 'game' }, [
-    loading ? div({ className: 'loading' }, [
-      span({}, 'Loading'),
-      span({ className: 'loading-ellipsis' }, repeat('.', loading.count))
-    ])
-    : div({}, [
+    error ? div({ className: 'center' }, [
+      div({ className: 'announcement' }, 'Ouch. Something broke.'),
+      div({}, error.message)
+    ]) :
+    div({}, [
+      loading ? div({ className: 'center announcement' }, [
+        span({}, 'Loading'),
+        span({ className: 'loading-ellipsis' }, repeat('.', loading.count))
+      ]) : null,
       board1 ? div({ className: 'player' }, [
         r(Life, board1),
         div({ className: 'board1' }, [r(Board, {
@@ -164,12 +165,12 @@ const Game = ({ loading, board1, board2 }) => {
         hr(),
         r(Life, board2),
         div({ className: 'board2' }, [r(Board, board2)])
-      ]) : null,
-      footer({}, [
-        'made by raine. ',
-        a({ href: GITHUB_SOURCE, target: '_blank' }, 'github')
-      ])
+      ]) : null
     ]),
+    !loading ? footer({}, [
+      'made by raine. ',
+      a({ href: GITHUB_SOURCE, target: '_blank' }, 'github')
+    ]) : null
   ])
 }
 
@@ -223,5 +224,11 @@ mtg.card.where({ set: 'EMN', pageSize: 500 }).then(allCards => {
   state.board1 = generateBoard(cards)
   state.board2 = generateBoard(cards)
   state = pipe(removeTrivialAttacks, equalizeLands)(state)
+  render()
+})
+.catch(err => {
+  clearInterval(clock)
+  state.loading = null
+  state.error = err
   render()
 })

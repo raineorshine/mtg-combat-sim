@@ -9,11 +9,14 @@ footer {
   text-align: center;
 }
 
-.loading {
+.center {
   position: absolute;
   text-align: center;
   width: 100%;
   top: 40vh;
+}
+
+.announcement {
   font-size: 84px;
 }
 

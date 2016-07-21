@@ -122907,13 +122907,7 @@ var generateBoard = function generateBoard(allCards) {
 };
 
 var render = function render() {
-  var _state = state;
-  var loading = _state.loading;
-  var board1 = _state.board1;
-  var board2 = _state.board2;
-
-
-  _reactDom2.default.render(r(Game, { loading: loading, board1: board1, board2: board2 }), document.getElementById('app'));
+  _reactDom2.default.render(r(Game, state), document.getElementById('app'));
 };
 
 // calculate the minimum damage that would get through for each player in
@@ -122970,15 +122964,16 @@ var equalizeLands = function equalizeLands(state) {
  **************************************/
 
 var Game = function Game(_ref) {
+  var error = _ref.error;
   var loading = _ref.loading;
   var board1 = _ref.board1;
   var board2 = _ref.board2;
 
-  return (0, _rDom.div)({ className: 'game' }, [loading ? (0, _rDom.div)({ className: 'loading' }, [(0, _rDom.span)({}, 'Loading'), (0, _rDom.span)({ className: 'loading-ellipsis' }, (0, _lodash.repeat)('.', loading.count))]) : (0, _rDom.div)({}, [board1 ? (0, _rDom.div)({ className: 'player' }, [r(Life, board1), (0, _rDom.div)({ className: 'board1' }, [r(Board, {
+  return (0, _rDom.div)({ className: 'game' }, [error ? (0, _rDom.div)({ className: 'center' }, [(0, _rDom.div)({ className: 'announcement' }, 'Ouch. Something broke.'), (0, _rDom.div)({}, error.message)]) : (0, _rDom.div)({}, [loading ? (0, _rDom.div)({ className: 'center announcement' }, [(0, _rDom.span)({}, 'Loading'), (0, _rDom.span)({ className: 'loading-ellipsis' }, (0, _lodash.repeat)('.', loading.count))]) : null, board1 ? (0, _rDom.div)({ className: 'player' }, [r(Life, board1), (0, _rDom.div)({ className: 'board1' }, [r(Board, {
     // omit opponent's hand
     creatures: board1.creatures,
     lands: board1.lands
-  })])]) : null, board2 ? (0, _rDom.div)({ className: 'player' }, [(0, _rDom.hr)(), r(Life, board2), (0, _rDom.div)({ className: 'board2' }, [r(Board, board2)])]) : null, (0, _rDom.footer)({}, ['made by raine. ', (0, _rDom.a)({ href: GITHUB_SOURCE, target: '_blank' }, 'github')])])]);
+  })])]) : null, board2 ? (0, _rDom.div)({ className: 'player' }, [(0, _rDom.hr)(), r(Life, board2), (0, _rDom.div)({ className: 'board2' }, [r(Board, board2)])]) : null]), !loading ? (0, _rDom.footer)({}, ['made by raine. ', (0, _rDom.a)({ href: GITHUB_SOURCE, target: '_blank' }, 'github')]) : null]);
 };
 
 var Board = function Board(_ref2) {
@@ -123037,6 +123032,11 @@ mtg.card.where({ set: 'EMN', pageSize: 500 }).then(function (allCards) {
   state.board1 = generateBoard(cards);
   state.board2 = generateBoard(cards);
   state = (0, _ramda.pipe)(removeTrivialAttacks, equalizeLands)(state);
+  render();
+}).catch(function (err) {
+  clearInterval(clock);
+  state.loading = null;
+  state.error = err;
   render();
 });
 
