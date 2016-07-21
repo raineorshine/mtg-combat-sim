@@ -4,8 +4,8 @@ import ReactDOM from 'react-dom'
 import * as mtg from 'mtgsdk'
 const r = require('r-dom')
 import { a, div, footer, img, hr, span } from 'r-dom'
-import { filter, random, repeat, sample, sampleSize } from 'lodash'
-import { merge, pipe, prop, propEq, range, sort } from 'ramda'
+import { filter, merge, random, repeat, sample, sampleSize } from 'lodash'
+import { binary, pipe, prop, propEq, range, sort, max } from 'ramda'
 
 const ALL_COLORS = ['White', 'Blue', 'Black', 'Red', 'Green']
 const NUM_COLORS = 2
@@ -58,7 +58,11 @@ const generateBoard = allCards => {
       card.colors.every(color => colors.indexOf(color) >= 0)
   })
 
-  const spells = cards.filter(card => card.types.indexOf('Creature') === -1 && card.types.indexOf('Land') === -1)
+  const spells = cards.filter(card => {
+    return card.types.indexOf('Creature') === -1
+      && card.types.indexOf('Land') === -1
+      && card.types.indexOf('Artifact') === -1
+  })
   const hand = sampleSize(spells, random(HAND_SIZE_MIN, HAND_SIZE_MAX))
 
   const creatures = sampleSize(
@@ -66,12 +70,14 @@ const generateBoard = allCards => {
     random(BOARD_SIZE_MIN, BOARD_SIZE_MAX)
   )
 
-  const lands = range(0, 5).map(() => allLands[sample(colors)])
-  console.log(lands)
-  // const lands = sampleSize(
-  //   filter(cards, propEq('type', 'land')),
-  //   5//random(HAND_SIZE_MIN, HAND_SIZE_MAX+1))
-  // )
+  // get highest casting cost among creatures
+  const maxCmc = creatures.map(prop('cmc')).reduce(binary(max))
+  const numLands = Math.max(maxCmc, random(3, 6))
+
+  const lands = [].concat(
+    [allLands[colors[0]], allLands[colors[1]]],
+    range(0, numLands - 2).map(() => allLands[sample(colors)])
+  )
 
   return { hand, creatures, lands, life: random(LIFE_MIN, LIFE_MAX) }
 }
@@ -106,7 +112,7 @@ const getAlpha = (creatures1, creatures2) => {
 // calculate the minimum damage that would get through for each player in
 // an alpha strike, and set the other player's life above that value to
 // eliminate trivial combat scenarios
-const removeTrivialAttacks = () => {
+const removeTrivialAttacks = state => {
 
   const alphaDiff = getAlpha(state.board1.creatures, state.board2.creatures)
 
@@ -117,6 +123,22 @@ const removeTrivialAttacks = () => {
     state.board1.life = -alphaDiff + random(0, MAX_ALPHA_BUFFER)
   }
 
+  return state
+}
+
+/** Makes sure the lands are close to even between the two plyears. */
+const equalizeLands = state => {
+
+  const landDiff = state.board1.lands.length - state.board2.lands.length
+
+  if(landDiff > 2) {
+    state.board2.lands = state.board2.lands.concat(range(0, landDiff - 2).map(() => state.board2.lands[state.board2.lands.length-1]))
+  }
+  else if(landDiff < -2) {
+    state.board1.lands = state.board1.lands.concat(range(0, -landDiff - 2).map(() => state.board1.lands[state.board1.lands.length-1]))
+  }
+
+  return state
 }
 
 /**************************************
@@ -164,7 +186,7 @@ const Board = ({ hand, creatures, lands }) => {
 
 const Card = ({ small, name, imageUrl, multiverseid }) => {
   return img({
-    className: ['card', small ? 'card-small' : ''].join(''),
+    className: ['card', small ? 'card-small' : ''].join(' '),
     alt: name,
     src: imageUrl || url(multiverseid)
   })
@@ -200,6 +222,6 @@ mtg.card.where({ set: 'EMN', pageSize: 500 }).then(allCards => {
   state.loading = null
   state.board1 = generateBoard(cards)
   state.board2 = generateBoard(cards)
-  removeTrivialAttacks()
+  state = pipe(removeTrivialAttacks, equalizeLands)(state)
   render()
 })

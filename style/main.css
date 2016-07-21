@@ -31,7 +31,7 @@ footer {
 .hand-label {
   font-size: 40px;
   text-transform: uppercase;
-  margin: 40px 0 10px;
+  margin: 30px 0 10px;
 }
 
 hr {
@@ -51,11 +51,11 @@ hr {
 }
 
 .card {
-  padding: 0 10px;
+  padding: 0 10px 10px 0;
 }
 
 .card-small {
-  width: 122px;
+  width: 120px;
 }
 
 .life-label {

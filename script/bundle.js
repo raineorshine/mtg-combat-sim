@@ -122887,7 +122887,7 @@ var generateBoard = function generateBoard(allCards) {
   });
 
   var spells = cards.filter(function (card) {
-    return card.types.indexOf('Creature') === -1 && card.types.indexOf('Land') === -1;
+    return card.types.indexOf('Creature') === -1 && card.types.indexOf('Land') === -1 && card.types.indexOf('Artifact') === -1;
   });
   var hand = (0, _lodash.sampleSize)(spells, (0, _lodash.random)(HAND_SIZE_MIN, HAND_SIZE_MAX));
 
@@ -122895,22 +122895,22 @@ var generateBoard = function generateBoard(allCards) {
     return card.types.indexOf('Creature') >= 0;
   }), (0, _lodash.random)(BOARD_SIZE_MIN, BOARD_SIZE_MAX));
 
-  var lands = (0, _ramda.range)(0, 5).map(function () {
+  // get highest casting cost among creatures
+  var maxCmc = creatures.map((0, _ramda.prop)('cmc')).reduce((0, _ramda.binary)(_ramda.max));
+  var numLands = Math.max(maxCmc, (0, _lodash.random)(3, 6));
+
+  var lands = [].concat([allLands[colors[0]], allLands[colors[1]]], (0, _ramda.range)(0, numLands - 2).map(function () {
     return allLands[(0, _lodash.sample)(colors)];
-  });
-  console.log(lands);
-  // const lands = sampleSize(
-  //   filter(cards, propEq('type', 'land')),
-  //   5//random(HAND_SIZE_MIN, HAND_SIZE_MAX+1))
-  // )
+  }));
 
   return { hand: hand, creatures: creatures, lands: lands, life: (0, _lodash.random)(LIFE_MIN, LIFE_MAX) };
 };
 
 var render = function render() {
-  var loading = state.loading;
-  var board1 = state.board1;
-  var board2 = state.board2;
+  var _state = state;
+  var loading = _state.loading;
+  var board1 = _state.board1;
+  var board2 = _state.board2;
 
 
   _reactDom2.default.render(r(Game, { loading: loading, board1: board1, board2: board2 }), document.getElementById('app'));
@@ -122934,7 +122934,7 @@ var getAlpha = function getAlpha(creatures1, creatures2) {
 // calculate the minimum damage that would get through for each player in
 // an alpha strike, and set the other player's life above that value to
 // eliminate trivial combat scenarios
-var removeTrivialAttacks = function removeTrivialAttacks() {
+var removeTrivialAttacks = function removeTrivialAttacks(state) {
 
   var alphaDiff = getAlpha(state.board1.creatures, state.board2.creatures);
 
@@ -122943,6 +122943,26 @@ var removeTrivialAttacks = function removeTrivialAttacks() {
   } else if (-alphaDiff >= state.board1.life) {
     state.board1.life = -alphaDiff + (0, _lodash.random)(0, MAX_ALPHA_BUFFER);
   }
+
+  return state;
+};
+
+/** Makes sure the lands are close to even between the two plyears. */
+var equalizeLands = function equalizeLands(state) {
+
+  var landDiff = state.board1.lands.length - state.board2.lands.length;
+
+  if (landDiff > 2) {
+    state.board2.lands = state.board2.lands.concat((0, _ramda.range)(0, landDiff - 2).map(function () {
+      return state.board2.lands[state.board2.lands.length - 1];
+    }));
+  } else if (landDiff < -2) {
+    state.board1.lands = state.board1.lands.concat((0, _ramda.range)(0, -landDiff - 2).map(function () {
+      return state.board1.lands[state.board1.lands.length - 1];
+    }));
+  }
+
+  return state;
 };
 
 /**************************************
@@ -122969,7 +122989,7 @@ var Board = function Board(_ref2) {
   return (0, _rDom.div)({ className: 'board' }, [creatures ? (0, _rDom.div)({ className: 'creatures' }, creatures.map(function (card) {
     return r(Card, card);
   })) : null, lands ? (0, _rDom.div)({ className: 'lands' }, lands.map(function (card) {
-    return r(Card, (0, _ramda.merge)({}, card, { small: true }));
+    return r(Card, (0, _lodash.merge)({}, card, { small: true }));
   })) : null, hand ? (0, _rDom.div)({}, [(0, _rDom.div)({ className: 'hand-label' }, 'Hand'), (0, _rDom.div)({ className: 'hand' }, hand.map(function (card) {
     return r(Card, card);
   }))]) : null]);
@@ -122982,7 +123002,7 @@ var Card = function Card(_ref3) {
   var multiverseid = _ref3.multiverseid;
 
   return (0, _rDom.img)({
-    className: ['card', small ? 'card-small' : ''].join(''),
+    className: ['card', small ? 'card-small' : ''].join(' '),
     alt: name,
     src: imageUrl || url(multiverseid)
   });
@@ -123016,7 +123036,7 @@ mtg.card.where({ set: 'EMN', pageSize: 500 }).then(function (allCards) {
   state.loading = null;
   state.board1 = generateBoard(cards);
   state.board2 = generateBoard(cards);
-  removeTrivialAttacks();
+  state = (0, _ramda.pipe)(removeTrivialAttacks, equalizeLands)(state);
   render();
 });
 
