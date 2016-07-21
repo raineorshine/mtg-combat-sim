@@ -54,6 +54,10 @@ hr {
   padding: 0 10px;
 }
 
+.card-small {
+  width: 122px;
+}
+
 .life-label {
   font-size: 26px;
   letter-spacing: 4px;

@@ -122818,8 +122818,8 @@ var r = require('r-dom');
 
 var ALL_COLORS = ['White', 'Blue', 'Black', 'Red', 'Green'];
 var NUM_COLORS = 2;
-var HAND_SIZE_MIN = 2;
-var HAND_SIZE_MAX = 4;
+var HAND_SIZE_MIN = 1;
+var HAND_SIZE_MAX = 3;
 var BOARD_SIZE_MIN = 2;
 var BOARD_SIZE_MAX = 4;
 var LIFE_MIN = 1;
@@ -122831,6 +122831,14 @@ var BANNED = ['Emrakul, the Promised End'];
 
 var state = {
   loading: { count: 0 }
+};
+
+var allLands = {
+  White: { name: 'Plains', multiverseid: '73963' },
+  Blue: { name: 'Island', multiverseid: '73951' },
+  Black: { name: 'Swap', multiverseid: '73973' },
+  Red: { name: 'Mountain', multiverseid: '73958' },
+  Green: { name: 'Forest', multiverseid: '73946' }
 };
 
 var toNumber = function toNumber(x) {
@@ -122862,6 +122870,10 @@ var allowed = function allowed(card) {
   return BANNED.indexOf(card.name) === -1;
 };
 
+var url = function url(multiverseid) {
+  return 'http://gatherer.wizards.com/Handlers/Image.ashx?type=card&multiverseid=' + multiverseid;
+};
+
 var generateBoard = function generateBoard(allCards) {
 
   // choose colors
@@ -122874,13 +122886,19 @@ var generateBoard = function generateBoard(allCards) {
     });
   });
 
-  var hand = (0, _lodash.sampleSize)(cards, (0, _lodash.random)(HAND_SIZE_MIN, HAND_SIZE_MAX));
+  var spells = cards.filter(function (card) {
+    return card.types.indexOf('Creature') === -1 && card.types.indexOf('Land') === -1;
+  });
+  var hand = (0, _lodash.sampleSize)(spells, (0, _lodash.random)(HAND_SIZE_MIN, HAND_SIZE_MAX));
 
   var creatures = (0, _lodash.sampleSize)((0, _lodash.filter)(cards, function (card) {
     return card.types.indexOf('Creature') >= 0;
   }), (0, _lodash.random)(BOARD_SIZE_MIN, BOARD_SIZE_MAX));
 
-  var lands = [];
+  var lands = (0, _ramda.range)(0, 5).map(function () {
+    return allLands[(0, _lodash.sample)(colors)];
+  });
+  console.log(lands);
   // const lands = sampleSize(
   //   filter(cards, propEq('type', 'land')),
   //   5//random(HAND_SIZE_MIN, HAND_SIZE_MAX+1))
@@ -122951,20 +122969,22 @@ var Board = function Board(_ref2) {
   return (0, _rDom.div)({ className: 'board' }, [creatures ? (0, _rDom.div)({ className: 'creatures' }, creatures.map(function (card) {
     return r(Card, card);
   })) : null, lands ? (0, _rDom.div)({ className: 'lands' }, lands.map(function (card) {
-    return r(Card, card);
+    return r(Card, (0, _ramda.merge)({}, card, { small: true }));
   })) : null, hand ? (0, _rDom.div)({}, [(0, _rDom.div)({ className: 'hand-label' }, 'Hand'), (0, _rDom.div)({ className: 'hand' }, hand.map(function (card) {
     return r(Card, card);
   }))]) : null]);
 };
 
 var Card = function Card(_ref3) {
+  var small = _ref3.small;
   var name = _ref3.name;
   var imageUrl = _ref3.imageUrl;
+  var multiverseid = _ref3.multiverseid;
 
   return (0, _rDom.img)({
-    className: 'card',
+    className: ['card', small ? 'card-small' : ''].join(''),
     alt: name,
-    src: imageUrl
+    src: imageUrl || url(multiverseid)
   });
 };
 

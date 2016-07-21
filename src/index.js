@@ -4,13 +4,13 @@ import ReactDOM from 'react-dom'
 import * as mtg from 'mtgsdk'
 const r = require('r-dom')
 import { a, div, footer, img, hr, span } from 'r-dom'
-import { filter, random, repeat, sampleSize } from 'lodash'
-import { merge, pipe, prop, propEq, sort } from 'ramda'
+import { filter, random, repeat, sample, sampleSize } from 'lodash'
+import { merge, pipe, prop, propEq, range, sort } from 'ramda'
 
 const ALL_COLORS = ['White', 'Blue', 'Black', 'Red', 'Green']
 const NUM_COLORS = 2
-const HAND_SIZE_MIN = 2
-const HAND_SIZE_MAX = 4
+const HAND_SIZE_MIN = 1
+const HAND_SIZE_MAX = 3
 const BOARD_SIZE_MIN = 2
 const BOARD_SIZE_MAX = 4
 const LIFE_MIN = 1
@@ -26,6 +26,14 @@ let state = {
   loading: { count: 0 }
 }
 
+const allLands = {
+  White: { name: 'Plains', multiverseid: '73963'},
+  Blue: { name: 'Island', multiverseid: '73951'},
+  Black: { name: 'Swap', multiverseid: '73973'},
+  Red: { name: 'Mountain', multiverseid: '73958'},
+  Green: { name: 'Forest', multiverseid: '73946'}
+}
+
 const toNumber = x => +x
 const sum = (x, y) => x + y
 const diff = (x, y) => x - y
@@ -36,6 +44,8 @@ const or = (f, g) => x => f(x) || g(x)
 const isFront = card => !card.names || card.name === card.names[0]
 
 const allowed = card => BANNED.indexOf(card.name) === -1
+
+const url = multiverseid => 'http://gatherer.wizards.com/Handlers/Image.ashx?type=card&multiverseid=' + multiverseid
 
 const generateBoard = allCards => {
 
@@ -48,14 +58,16 @@ const generateBoard = allCards => {
       card.colors.every(color => colors.indexOf(color) >= 0)
   })
 
-  const hand = sampleSize(cards, random(HAND_SIZE_MIN, HAND_SIZE_MAX))
+  const spells = cards.filter(card => card.types.indexOf('Creature') === -1 && card.types.indexOf('Land') === -1)
+  const hand = sampleSize(spells, random(HAND_SIZE_MIN, HAND_SIZE_MAX))
 
   const creatures = sampleSize(
     filter(cards, card => card.types.indexOf('Creature') >= 0),
     random(BOARD_SIZE_MIN, BOARD_SIZE_MAX)
   )
 
-  const lands = []
+  const lands = range(0, 5).map(() => allLands[sample(colors)])
+  console.log(lands)
   // const lands = sampleSize(
   //   filter(cards, propEq('type', 'land')),
   //   5//random(HAND_SIZE_MIN, HAND_SIZE_MAX+1))
@@ -142,7 +154,7 @@ const Game = ({ loading, board1, board2 }) => {
 const Board = ({ hand, creatures, lands }) => {
   return div({ className: 'board' }, [
     creatures ? div({ className: 'creatures' }, creatures.map(card => r(Card, card))) : null,
-    lands ? div({ className: 'lands' }, lands.map(card => r(Card, card))) : null,
+    lands ? div({ className: 'lands' }, lands.map(card => r(Card, merge({}, card, { small: true })))) : null,
     hand ? div({}, [
       div({ className: 'hand-label' }, 'Hand'),
       div({ className: 'hand' }, hand.map(card => r(Card, card)))
@@ -150,11 +162,11 @@ const Board = ({ hand, creatures, lands }) => {
   ])
 }
 
-const Card = ({ name, imageUrl }) => {
+const Card = ({ small, name, imageUrl, multiverseid }) => {
   return img({
-    className: 'card',
+    className: ['card', small ? 'card-small' : ''].join(''),
     alt: name,
-    src: imageUrl
+    src: imageUrl || url(multiverseid)
   })
 }
 
